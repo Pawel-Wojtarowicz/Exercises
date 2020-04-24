@@ -17,19 +17,36 @@ public class TicTacToe {
         while(true) {
             Scanner scanner = new Scanner(System.in);
             System.out.println("Choose from (1-9):");
-            //int choose = scanner.nextInt();
-            placeSymbol(board, scanner.nextInt(), "player");
+            int choose = scanner.nextInt();
+            while (playerPos.contains(choose) || cpuPos.contains(choose)) {
+                System.out.println("Position taken already. Pick again. ");
+                choose = scanner.nextInt();
+            }
+            placeSymbol(board, choose, "player");
+            String result = checkWinner();
+            if(result.length() > 0) {
+                System.out.println(result);
+                break;
+            }
 
             Random random = new Random();
-            int cpuChoose = random.nextInt(9 + 1);
+            int cpuChoose = random.nextInt(9) + 1;
+            if(playerPos.size() + cpuPos.size() < 10) {
+                while (playerPos.contains(cpuChoose) || cpuPos.contains(cpuChoose)) {
+                    cpuChoose = random.nextInt(9) + 1;
+                }
+            }
             placeSymbol(board, cpuChoose, "cpu");
+
             System.out.println();
             printBoard(board);
-
-            String result = checkWinner();
-            System.out.println(result);
+            System.out.println();
+            result = checkWinner();
+            if(result.length() > 0) {
+                System.out.println(result);
+                break;
+            }
         }
-
     }
 
     public static String checkWinner() {
@@ -44,22 +61,17 @@ public class TicTacToe {
         List cross2 = Arrays.asList(7, 5, 3);
 
         List<List> winning = new ArrayList<>();
-        winning.add(tRow);
-        winning.add(mRow);
-        winning.add(bRow);
-        winning.add(lCol);
-        winning.add(mCol);
-        winning.add(rCol);
-        winning.add(cross1);
-        winning.add(cross2);
+        Collections.addAll(winning, tRow, mRow, bRow, lCol, mCol, rCol, cross1, cross2);
 
-        for(List list : winning) {
+        for (List list : winning) {
             if(playerPos.containsAll(list)){
                 System.out.println("You won!");
+                System.exit(0);
             }else if(cpuPos.containsAll(list)){
                 System.out.println("CPU won ;(");
-            } else if(playerPos.size() + cpuPos.size() == 9) {
-                System.out.println("Draw");
+                System.exit(0);
+            } else if(playerPos.size() + cpuPos.size() > 9) {
+                return "Draw!";
             }
         }
         return "";
@@ -79,8 +91,10 @@ public class TicTacToe {
 
         if(user.equals("player")){
             symbol = 'X';
+            playerPos.add(choose);
         } else if(user.equals("cpu")) {
             symbol = 'O';
+            cpuPos.add(choose);
         }
 
         switch (choose) {
@@ -112,9 +126,7 @@ public class TicTacToe {
                 board[4][4] = symbol;
                 break;
             default:
-                System.out.println("Wrong choose :(");
                 break;
         }
     }
-
 }
